@@ -15,7 +15,7 @@ def base_page():
 
 @app.route('/requirements/')
 def show_requirements_file():
-    return flask.send_file('requirements.txt')
+    return flask.send_file('../requirements.txt')
 
 
 @app.route('/generate-users/<number>')

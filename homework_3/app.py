@@ -3,7 +3,6 @@ from datetime import datetime
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sales.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -36,11 +35,27 @@ class Sales(db.Model):
 #                   price=row[2], payment_type=row[3])
 #     db.session.add(sales)
 #     db.session.commit()
-# expenses = Sales.query(func.sum(Sales.price)).group_by(Sales.transaction_date)
-# print(expenses)
 
 
-price_sum = db.session.query(db.func.sum(Sales.price)).\
+price_sum = db.session.query(db.func.sum(Sales.price),
+                             db.func.strftime('%Y-%m-%d', Sales.transaction_date)).\
     group_by(db.func.strftime('%Y-%m-%d', Sales.transaction_date)).all()
-print(price_sum)
-print(len(price_sum))
+
+sums_dict = {}
+for row in price_sum:
+    sums_dict.update({row[1]: row[0]})
+print(sums_dict)
+
+
+@app.route("/")
+def main_page():
+    return "Python course homework №3!"
+
+
+@app.route("/summary")
+def show_sums_of_transactions():
+    return sums_dict
+
+
+if __name__ == "__main__":
+    app.run()

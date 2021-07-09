@@ -78,7 +78,11 @@ def sales():
     if price_query:
         filter_params['price'] = price_query
 
-    result = db.session.query(Sales).filter_by(**filter_params).all()
+    payment_type_query = request.args.get('payment_type')
+    if payment_type_query:
+        filter_params['payment_type'] = payment_type_query
+
+    result = db.session.query(Sales).filter_by(**filter_params)
     result_dict = {}
     for object in result:
         counter = object.id

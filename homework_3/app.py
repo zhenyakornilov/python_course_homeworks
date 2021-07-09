@@ -2,6 +2,7 @@ import csv
 from datetime import datetime
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_
 
 
 app = Flask(__name__)
@@ -61,27 +62,24 @@ def show_sums_of_transactions():
 @app.route('/sales')
 def sales():
     filter_params = {}
+
     id_query = request.args.get('id')
     if id_query:
         filter_params['id'] = id_query
+
     transaction_date_query = request.args.get('transaction_date')
-
     if transaction_date_query:
-        filter_params['transaction_date'] = transaction_date_query
-    product_query = request.args.get('product')
+        filter_params['transaction_date'] = datetime.date(transaction_date_query)
 
+    product_query = request.args.get('product')
     if product_query:
         filter_params["product"] = product_query
-    price_query = request.args.get('price')
 
+    price_query = request.args.get('price')
     if price_query:
         filter_params['price'] = price_query
-    payment_type_query = request.args.get('payment_type')
 
-    if payment_type_query:
-        filter_params['payment_type'] = payment_type_query
-    result = db.session.query(Sales).filter_by(**filter_params)
-
+    result = db.session.query(Sales).filter_by(**filter_params).all()
     result_dict = {}
     for object in result:
         counter = object.id

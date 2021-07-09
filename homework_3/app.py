@@ -2,7 +2,6 @@ import csv
 from datetime import datetime
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import or_
 
 
 app = Flask(__name__)

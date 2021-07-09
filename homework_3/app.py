@@ -1,7 +1,8 @@
 import csv
 from datetime import datetime
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sales.db'
@@ -26,7 +27,9 @@ class Sales(db.Model):
     payment_type = db.Column(db.String, unique=False, nullable=False)
 
     def __repr__(self):
-        return '<Sales %r>' % self.transaction_date
+        return f'<id={self.id}, transaction_date={self.transaction_date}, ' \
+               f'product={self.product}, price={self.price}, ' \
+               f'payment_type={self.payment_type}>'
 
 
 # db.create_all()
@@ -40,11 +43,10 @@ class Sales(db.Model):
 price_sum = db.session.query(db.func.sum(Sales.price),
                              db.func.strftime('%Y-%m-%d', Sales.transaction_date)).\
     group_by(db.func.strftime('%Y-%m-%d', Sales.transaction_date)).all()
-
+print(price_sum)
 sums_dict = {}
 for row in price_sum:
     sums_dict.update({row[1]: row[0]})
-print(sums_dict)
 
 
 @app.route("/")
@@ -55,6 +57,20 @@ def main_page():
 @app.route("/summary")
 def show_sums_of_transactions():
     return sums_dict
+
+
+@app.route('/sales')
+def sales():
+    # id_query = request.args.get('id')
+    # transaction_date_query = request.args.get('transaction_date')
+    # product_query = request.args.get('product')
+    price_query = request.args.get('price')
+    # payment_type_query = request.args.get('payment_type')
+    result = Sales.query.filter_by(price=f'{price_query}').order_by(Sales.id).all()
+    some_dict = {}
+    for row in result:
+        some_dict.update({row.id: f'{row.transaction_date}'})
+    return some_dict
 
 
 if __name__ == "__main__":

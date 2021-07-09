@@ -61,12 +61,23 @@ def show_sums_of_transactions():
 
 @app.route('/sales')
 def sales():
-    # id_query = request.args.get('id')
-    # transaction_date_query = request.args.get('transaction_date')
-    # product_query = request.args.get('product')
+    filter_params = {}
+    id_query = request.args.get('id')
+    if id_query:
+        filter_params['id'] = id_query
+    transaction_date_query = request.args.get('transaction_date')
+    if transaction_date_query:
+        filter_params['transaction_date'] = transaction_date_query
+    product_query = request.args.get('product')
+    if product_query:
+        filter_params["product"] = product_query
     price_query = request.args.get('price')
-    # payment_type_query = request.args.get('payment_type')
-    result = Sales.query.filter_by(price=f'{price_query}').order_by(Sales.id).all()
+    if price_query:
+        filter_params['price'] = price_query
+    payment_type_query = request.args.get('payment_type')
+    if payment_type_query:
+        filter_params['payment_type'] = payment_type_query
+    result = Sales.query.filter_by(**filter_params).order_by(Sales.id).all()
     some_dict = {}
     for row in result:
         some_dict.update({row.id: f'{row.transaction_date}'})

@@ -43,7 +43,6 @@ class Sales(db.Model):
 price_sum = db.session.query(db.func.sum(Sales.price),
                              db.func.strftime('%Y-%m-%d', Sales.transaction_date)).\
     group_by(db.func.strftime('%Y-%m-%d', Sales.transaction_date)).all()
-print(price_sum)
 sums_dict = {}
 for row in price_sum:
     sums_dict.update({row[1]: row[0]})
@@ -66,22 +65,34 @@ def sales():
     if id_query:
         filter_params['id'] = id_query
     transaction_date_query = request.args.get('transaction_date')
+
     if transaction_date_query:
         filter_params['transaction_date'] = transaction_date_query
     product_query = request.args.get('product')
+
     if product_query:
         filter_params["product"] = product_query
     price_query = request.args.get('price')
+
     if price_query:
         filter_params['price'] = price_query
     payment_type_query = request.args.get('payment_type')
+
     if payment_type_query:
         filter_params['payment_type'] = payment_type_query
-    result = Sales.query.filter_by(**filter_params).order_by(Sales.id).all()
-    some_dict = {}
-    for row in result:
-        some_dict.update({row.id: f'{row.transaction_date}'})
-    return some_dict
+    result = db.session.query(Sales).filter_by(**filter_params)
+
+    result_dict = {}
+    for object in result:
+        counter = object.id
+        inside_dict = {'id': object.id,
+                       'transaction_date': object.transaction_date,
+                       'product': object.product,
+                       'price': object.price,
+                       'payment_type': object.payment_type}
+        result_dict.update({counter: inside_dict})
+
+    return result_dict
 
 
 if __name__ == "__main__":

@@ -32,12 +32,12 @@ class Sales(db.Model):
                f'payment_type={self.payment_type}>'
 
 
-# db.create_all()
-# for row in sales_data:
-#     sales = Sales(transaction_date=row[0], product=row[1],
-#                   price=row[2], payment_type=row[3])
-#     db.session.add(sales)
-#     db.session.commit()
+db.create_all()
+for row in sales_data:
+    sales = Sales(transaction_date=row[0], product=row[1],
+                  price=row[2], payment_type=row[3])
+    db.session.add(sales)
+    db.session.commit()
 
 
 price_sum = db.session.query(db.func.sum(Sales.price),
